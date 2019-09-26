@@ -34,12 +34,15 @@ write_line ()
 
 # this script is specifically for PR, we hardcode env=p
 export env=p
-export MY_SCRIPT_NAME=`fxit_split_by_version_pr.sh "$0"`
-
-if pidof -o %PPID -x $(MY_SCRIPT_NAME) > /dev/null; then
-    echo "$MY_SCRIPT_NAME already running; exiting"
-    exit 1
-fi
+export script_name=fxit_split_by_version_pr.sh
+for pid in $(pgrep -f $script_name); do
+    if [ $pid != $$ ]; then
+        echo "[$(date)] : $script_name : Process is already running with PID $pid"
+        exit 1
+    else
+      echo "Running with PID $pid"
+    fi  
+done
 
 # this for loop reads all of the files in the specified folder one file at a time (note: variable file contains the full path and the file name)
 for file in /disk/data/websvc/ftp/dropzone/ftpfxit${env}/xmlt/stage/*
